@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>ABCD tester</title>
-  <!-- DŮLEŽITÉ PRO MOBIL -->
+  <!-- Pro mobilní zařízení -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
@@ -100,7 +100,7 @@
       background: #e5e7eb;
     }
 
-    /* větší checkboxy/radia pro mobil */
+    /* větší checkboxy pro mobil-friendly tap */
     input[type="checkbox"],
     input[type="radio"] {
       width: 20px;
@@ -167,7 +167,7 @@
       font-size:0.8rem;
     }
 
-    /* ✅ Mobilní úpravy */
+    /* 📱 Mobilní úpravy */
     @media (max-width: 640px) {
       body {
         padding: 12px 8px;
@@ -204,6 +204,15 @@
         display: flex;
         align-items: center;
         gap: 6px;
+      }
+
+      /* větší text v tlačítkách na mobilu */
+      .question-nav-btn,
+      #evaluateBtn,
+      #resetBtn,
+      #generateBtn {
+        font-size: 1.1rem;
+        font-weight: 700;
       }
     }
   </style>
@@ -271,16 +280,20 @@ C) Odpověď 3
     const sequentialModeCheckbox = document.getElementById('sequentialModeCheckbox');
 
     let allowMultipleAnswers = true;
-    let quizData = [];
-    let currentQuestions = [];
+    let quizData = [];          // původní data z TXT
+    let currentQuestions = [];  // aktuální sada otázek (po míchání)
     let currentModeSequential = false;
+
+    // stav pro sekvenční režim
     let seqIndex = 0;
     let seqCorrect = 0;
 
+    // přepínač single / multiple
     modeRadios.forEach(r =>
       r.addEventListener('change', e => allowMultipleAnswers = e.target.value === 'multi')
     );
 
+    // načtení souboru
     fileInput.addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) {
@@ -310,6 +323,7 @@ C) Odpověď 3
       reader.readAsText(file, 'UTF-8');
     });
 
+    // tlačítko Vygenerovat
     generateBtn.addEventListener('click', () => {
       if (!quizData.length) return;
 
@@ -332,6 +346,7 @@ C) Odpověď 3
       }
     });
 
+    // shuffle
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -339,6 +354,7 @@ C) Odpověď 3
       }
     }
 
+    // parsování TXT
     function parseTxtToQuiz(text) {
       const lines = text.split(/\r?\n/);
       const blocks = [];
@@ -370,7 +386,7 @@ C) Odpověď 3
       })).filter(q => q.question && q.answers.length);
     }
 
-    // Režim: seznam
+    // ===== Režim: celý seznam =====
     function renderQuizList(questions) {
       quizContainer.innerHTML = '';
       resultSummary.textContent = '';
@@ -405,6 +421,7 @@ C) Odpověď 3
           answerDiv.appendChild(cb);
           answerDiv.appendChild(span);
 
+          // klik na celý řádek
           answerDiv.addEventListener('click', e => {
             if (e.target !== cb) cb.checked = !cb.checked;
             if (!allowMultipleAnswers && cb.checked) {
@@ -428,6 +445,7 @@ C) Odpověď 3
       resetBtn.style.display = 'inline-block';
     }
 
+    // vyhodnocení v režimu seznamu
     evaluateBtn.addEventListener('click', () => {
       if (currentModeSequential) return;
 
@@ -478,7 +496,7 @@ C) Odpověď 3
       resultSummary.textContent = `Výsledek: ${totalCorrect} / ${questionDivs.length} správně`;
     });
 
-    // Režim: po jedné
+    // ===== Režim: po jedné otázce =====
     function startSequentialMode() {
       seqIndex = 0;
       seqCorrect = 0;
@@ -606,12 +624,14 @@ C) Odpověď 3
           resultDiv.className = 'question-result incorrect';
         }
 
+        // po vyhodnocení se už neodpovídá, jen jde dál
         evalOneBtn.disabled = true;
         nextBtn.textContent = (seqIndex === total - 1) ? 'Dokončit test' : 'Další otázka';
         qDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = true);
       });
 
       nextBtn.addEventListener('click', () => {
+        // pokud otázka nebyla vyhodnocena, bere se jako špatně (seqCorrect se jen nezvýší)
         seqIndex++;
         renderSequentialQuestion();
       });
@@ -623,6 +643,7 @@ C) Odpověď 3
       quizContainer.appendChild(wrapper);
     }
 
+    // RESET
     resetBtn.addEventListener('click', () => {
       if (currentModeSequential && currentQuestions.length) {
         seqIndex = 0;
