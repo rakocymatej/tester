@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>ABCD tester</title>
-  <!-- Pro mobilní zařízení -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    :root {
-      font-size: 16px;
-    }
+    :root { font-size: 16px; }
 
     body {
       font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -33,9 +31,44 @@
       margin-bottom: 20px;
     }
 
-    input[type="file"] {
+    input[type="file"], select {
       margin-top: 4px;
       max-width: 100%;
+    }
+
+    select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      width: 100%;
+    }
+
+    .saved-tests {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .saved-buttons {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .delete-btn {
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .mode-selector {
@@ -64,8 +97,9 @@
       color: #fff;
       font-weight: 600;
       cursor: pointer;
-      min-height: 44px; /* větší tap area */
+      min-height: 44px;
     }
+
     #generateBtn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -90,17 +124,14 @@
       margin: 4px 0;
       padding: 8px 10px;
       border-radius: 8px;
-      transition: background-color .15s ease, border-color .15s ease;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .answer:hover {
-      background: #e5e7eb;
-    }
 
-    /* větší checkboxy pro mobil-friendly tap */
+    .answer:hover { background: #e5e7eb; }
+
     input[type="checkbox"],
     input[type="radio"] {
       width: 20px;
@@ -123,6 +154,7 @@
       display: none;
       min-height: 44px;
     }
+
     #evaluateBtn { background:#4f46e5; color:#fff; }
     #resetBtn { background:#6b7280; color:#fff; }
 
@@ -136,20 +168,16 @@
       min-height: 44px;
       margin-bottom: 6px;
     }
-    .btn-eval-one {
-      background:#4f46e5;
-      color:#fff;
-    }
-    .btn-next {
-      background:#0ea5e9;
-      color:#fff;
-    }
+
+    .btn-eval-one { background:#4f46e5; color:#fff; }
+    .btn-next { background:#0ea5e9; color:#fff; }
 
     #resultSummary {
       font-weight: 600;
       margin-top: 10px;
       font-size: 1rem;
     }
+
     .correct { color:#16a34a; }
     .incorrect { color:#dc2626; }
 
@@ -167,38 +195,36 @@
       font-size:0.8rem;
     }
 
-    /* 📱 Mobilní úpravy */
     @media (max-width: 640px) {
-      body {
-        padding: 12px 8px;
-      }
-      .uploader {
-        padding: 12px 14px;
-      }
-      h1 {
-        font-size: 1.25rem;
-      }
+      body { padding: 12px 8px; }
+      .uploader { padding: 12px 14px; }
+      h1 { font-size: 1.25rem; }
+
       .generate-controls {
         flex-direction: column;
         align-items: flex-start;
       }
-      #generateBtn {
-        width: 100%;
-        text-align: center;
-      }
+
+      #generateBtn,
       #evaluateBtn,
-      #resetBtn {
-        width: 100%;
-        text-align: center;
-        margin-right: 0;
-      }
-      .question {
-        padding: 12px 12px;
-      }
+      #resetBtn,
       .question-nav-btn {
         width: 100%;
+        text-align: center;
         margin-right: 0;
+        font-size: 1.25rem;
+        font-weight: 800;
+        padding: 14px 20px;
       }
+
+      .small-btn {
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px 16px;
+      }
+
+      .question { padding: 12px 12px; }
+
       .mode-selector label,
       .generate-controls label {
         display: flex;
@@ -206,18 +232,6 @@
         gap: 6px;
       }
 
-      /* větší text v tlačítkách na mobilu */
-      .question-nav-btn,
-      #evaluateBtn,
-      #resetBtn,
-      #generateBtn {
-        font-size: 1.25rem;
-        font-weight: 800;
-        padding: 14px 20px;
-        border-radius: 999px;
-      }
-
-      /* trochu větší text odpovědí */
       .answer span {
         font-size: 1.05rem;
         line-height: 1.5;
@@ -225,6 +239,7 @@
     }
   </style>
 </head>
+
 <body>
   <h1>ABCD tester</h1>
 
@@ -232,6 +247,22 @@
     <p><strong>1.</strong> Nahraj svůj <code>.txt</code> soubor s otázkami:</p>
     <input type="file" id="fileInput" accept=".txt">
     <div id="fileStatus" class="hint"></div>
+
+    <div class="saved-tests">
+      <strong>Uložené testy:</strong>
+      <select id="savedTestsSelect">
+        <option value="">Žádný uložený test</option>
+      </select>
+
+      <div class="saved-buttons">
+        <button class="small-btn" id="loadSavedTestBtn">Načíst uložený test</button>
+        <button class="small-btn delete-btn" id="deleteSavedTestBtn">Smazat uložený test</button>
+      </div>
+
+      <div class="hint">
+        Uložené testy zůstanou v tomto prohlížeči i po zavření stránky.
+      </div>
+    </div>
 
     <p><strong>Formát souboru musí být takto:</strong></p>
     <pre>
@@ -245,25 +276,25 @@ A) Odpověď 1*
 B) Odpověď 2
 C) Odpověď 3
     </pre>
+
     <p class="hint">
       ✔ První řádek bloku = otázka<br>
-      ✔ Další řádky = odpovědi (např. A) ...)<br>
+      ✔ Další řádky = odpovědi<br>
       ✔ Správná odpověď má na konci hvězdičku <code>*</code><br>
       ✔ Bloky jsou oddělené prázdným řádkem
     </p>
 
     <div class="mode-selector">
       <strong>Režim odpovědí:</strong><br>
-      <label><input type="radio" name="mode" value="multi" checked> Multiple choice (více odpovědí)</label><br>
-      <label><input type="radio" name="mode" value="single"> Jen jedna odpověď na otázku</label>
+      <label><input type="radio" name="mode" value="multi" checked> Multiple choice</label><br>
+      <label><input type="radio" name="mode" value="single"> Jen jedna odpověď</label>
     </div>
 
     <div class="generate-controls">
       <button id="generateBtn" disabled>Vygenerovat otázky</button>
-      <label><input type="checkbox" id="shuffleCheckbox"> Promíchat otázky náhodně</label>
-      <label><input type="checkbox" id="shuffleAnswersCheckbox"> Promíchat odpovědi v rámci otázek</label>
-      <label><input type="checkbox" id="sequentialModeCheckbox"> Zobrazovat otázky postupně (po jedné)</label>
-      <div class="hint">Po načtení souboru klikni na "Vygenerovat otázky".</div>
+      <label><input type="checkbox" id="shuffleCheckbox"> Promíchat otázky</label>
+      <label><input type="checkbox" id="shuffleAnswersCheckbox"> Promíchat odpovědi</label>
+      <label><input type="checkbox" id="sequentialModeCheckbox"> Otázky po jedné</label>
     </div>
   </div>
 
@@ -275,12 +306,19 @@ C) Odpověď 3
   <div id="resultSummary"></div>
 
   <script>
+    const STORAGE_PREFIX = 'abcdTester_savedTest_';
+
     const fileInput = document.getElementById('fileInput');
     const fileStatus = document.getElementById('fileStatus');
+    const savedTestsSelect = document.getElementById('savedTestsSelect');
+    const loadSavedTestBtn = document.getElementById('loadSavedTestBtn');
+    const deleteSavedTestBtn = document.getElementById('deleteSavedTestBtn');
+
     const quizContainer = document.getElementById('quizContainer');
     const evaluateBtn = document.getElementById('evaluateBtn');
     const resetBtn = document.getElementById('resetBtn');
     const resultSummary = document.getElementById('resultSummary');
+
     const modeRadios = document.querySelectorAll('input[name="mode"]');
     const generateBtn = document.getElementById('generateBtn');
     const shuffleCheckbox = document.getElementById('shuffleCheckbox');
@@ -288,50 +326,101 @@ C) Odpověď 3
     const sequentialModeCheckbox = document.getElementById('sequentialModeCheckbox');
 
     let allowMultipleAnswers = true;
-    let quizData = [];          // původní data z TXT
-    let currentQuestions = [];  // aktuální sada otázek (po míchání)
+    let quizData = [];
+    let currentQuestions = [];
     let currentModeSequential = false;
-
-    // stav pro sekvenční režim
     let seqIndex = 0;
     let seqCorrect = 0;
 
-    // přepínač single / multiple
-    modeRadios.forEach(r =>
-      r.addEventListener('change', e => allowMultipleAnswers = e.target.value === 'multi')
-    );
+    loadSavedTestsList();
 
-    // načtení souboru
+    modeRadios.forEach(radio => {
+      radio.addEventListener('change', e => {
+        allowMultipleAnswers = e.target.value === 'multi';
+      });
+    });
+
     fileInput.addEventListener('change', e => {
       const file = e.target.files[0];
-      if (!file) {
-        quizData = [];
-        generateBtn.disabled = true;
-        fileStatus.textContent = '';
-        return;
-      }
+      if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = ev => {
-        quizData = parseTxtToQuiz(ev.target.result);
 
-        if (!quizData.length) {
+      reader.onload = event => {
+        const text = event.target.result;
+        const parsed = parseTxtToQuiz(text);
+
+        if (!parsed.length) {
           fileStatus.textContent = 'Soubor načten, ale nenašly se žádné otázky.';
           generateBtn.disabled = true;
-        } else {
-          fileStatus.textContent = `Soubor načten. Otázek: ${quizData.length}. Klikni na "Vygenerovat otázky".`;
-          generateBtn.disabled = false;
+          return;
         }
 
-        quizContainer.innerHTML = '';
-        evaluateBtn.style.display = 'none';
-        resetBtn.style.display = 'none';
-        resultSummary.textContent = '';
+        saveTestToStorage(file.name, text);
+
+        quizData = parsed;
+        generateBtn.disabled = false;
+        fileStatus.textContent = `Soubor načten a uložen. Otázek: ${quizData.length}.`;
+
+        clearCurrentQuiz();
+        loadSavedTestsList(file.name);
       };
+
       reader.readAsText(file, 'UTF-8');
     });
 
-    // tlačítko Vygenerovat
+    loadSavedTestBtn.addEventListener('click', () => {
+      const selectedKey = savedTestsSelect.value;
+      if (!selectedKey) {
+        alert('Nejdřív vyber uložený test.');
+        return;
+      }
+
+      const text = localStorage.getItem(selectedKey);
+      if (!text) {
+        alert('Test se nepodařilo načíst.');
+        loadSavedTestsList();
+        return;
+      }
+
+      const parsed = parseTxtToQuiz(text);
+
+      if (!parsed.length) {
+        alert('Uložený test neobsahuje platné otázky.');
+        return;
+      }
+
+      quizData = parsed;
+      generateBtn.disabled = false;
+
+      const testName = selectedKey.replace(STORAGE_PREFIX, '');
+      fileStatus.textContent = `Načten uložený test: ${testName}. Otázek: ${quizData.length}.`;
+
+      clearCurrentQuiz();
+    });
+
+    deleteSavedTestBtn.addEventListener('click', () => {
+      const selectedKey = savedTestsSelect.value;
+      if (!selectedKey) {
+        alert('Nejdřív vyber test ke smazání.');
+        return;
+      }
+
+      const testName = selectedKey.replace(STORAGE_PREFIX, '');
+      const reallyDelete = confirm(`Opravdu chceš smazat uložený test "${testName}"?`);
+
+      if (!reallyDelete) return;
+
+      localStorage.removeItem(selectedKey);
+      loadSavedTestsList();
+
+      fileStatus.textContent = `Uložený test "${testName}" byl smazán.`;
+
+      quizData = [];
+      generateBtn.disabled = true;
+      clearCurrentQuiz();
+    });
+
     generateBtn.addEventListener('click', () => {
       if (!quizData.length) return;
 
@@ -354,7 +443,52 @@ C) Odpověď 3
       }
     });
 
-    // shuffle
+    function saveTestToStorage(fileName, text) {
+      const cleanName = fileName || `test-${new Date().toISOString()}.txt`;
+      localStorage.setItem(STORAGE_PREFIX + cleanName, text);
+    }
+
+    function loadSavedTestsList(selectedName = '') {
+      savedTestsSelect.innerHTML = '';
+
+      const keys = Object.keys(localStorage)
+        .filter(key => key.startsWith(STORAGE_PREFIX))
+        .sort();
+
+      if (!keys.length) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Žádný uložený test';
+        savedTestsSelect.appendChild(option);
+        return;
+      }
+
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = 'Vyber uložený test...';
+      savedTestsSelect.appendChild(defaultOption);
+
+      keys.forEach(key => {
+        const name = key.replace(STORAGE_PREFIX, '');
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = name;
+
+        if (selectedName && name === selectedName) {
+          option.selected = true;
+        }
+
+        savedTestsSelect.appendChild(option);
+      });
+    }
+
+    function clearCurrentQuiz() {
+      quizContainer.innerHTML = '';
+      evaluateBtn.style.display = 'none';
+      resetBtn.style.display = 'none';
+      resultSummary.textContent = '';
+    }
+
     function shuffleArray(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -362,7 +496,6 @@ C) Odpověď 3
       }
     }
 
-    // parsování TXT
     function parseTxtToQuiz(text) {
       const lines = text.split(/\r?\n/);
       const blocks = [];
@@ -376,76 +509,33 @@ C) Odpověď 3
           current.push(line);
         }
       }
+
       if (current.length) blocks.push(current);
 
-      return blocks.map((b, i) => ({
-        id: i,
-        question: b[0].trim(),
-        answers: b.slice(1).map(line => {
-          let t = line.trim();
-          if (!t) return null;
+      return blocks.map((block, index) => ({
+        id: index,
+        question: block[0].trim(),
+        answers: block.slice(1).map(line => {
+          let text = line.trim();
+          if (!text) return null;
+
           let correct = false;
-          if (t.endsWith('*')) {
+          if (text.endsWith('*')) {
             correct = true;
-            t = t.slice(0, -1).trim();
+            text = text.slice(0, -1).trim();
           }
-          return { text: t, correct };
-        }).filter(a => a !== null)
+
+          return { text, correct };
+        }).filter(Boolean)
       })).filter(q => q.question && q.answers.length);
     }
 
-    // ===== Režim: celý seznam =====
     function renderQuizList(questions) {
       quizContainer.innerHTML = '';
       resultSummary.textContent = '';
 
-      if (!questions.length) {
-        quizContainer.innerHTML = '<p>V souboru nejsou žádné platné otázky.</p>';
-        evaluateBtn.style.display = 'none';
-        resetBtn.style.display = 'none';
-        return;
-      }
-
-      questions.forEach((q, qi) => {
-        const qDiv = document.createElement('div');
-        qDiv.className = 'question';
-
-        const title = document.createElement('div');
-        title.className = 'question-title';
-        title.textContent = `${qi + 1}. ${q.question}`;
-        qDiv.appendChild(title);
-
-        q.answers.forEach(a => {
-          const answerDiv = document.createElement('div');
-          answerDiv.className = 'answer';
-
-          const cb = document.createElement('input');
-          cb.type = 'checkbox';
-          cb.dataset.correct = a.correct;
-
-          const span = document.createElement('span');
-          span.textContent = a.text;
-
-          answerDiv.appendChild(cb);
-          answerDiv.appendChild(span);
-
-          // klik na celý řádek
-          answerDiv.addEventListener('click', e => {
-            if (e.target !== cb) cb.checked = !cb.checked;
-            if (!allowMultipleAnswers && cb.checked) {
-              qDiv.querySelectorAll('input[type="checkbox"]').forEach(x => {
-                if (x !== cb) x.checked = false;
-              });
-            }
-          });
-
-          qDiv.appendChild(answerDiv);
-        });
-
-        const result = document.createElement('div');
-        result.className = 'question-result';
-        qDiv.appendChild(result);
-
+      questions.forEach((question, index) => {
+        const qDiv = createQuestionElement(question, index + 1, true);
         quizContainer.appendChild(qDiv);
       });
 
@@ -453,121 +543,37 @@ C) Odpověď 3
       resetBtn.style.display = 'inline-block';
     }
 
-    // vyhodnocení v režimu seznamu
-    evaluateBtn.addEventListener('click', () => {
-      if (currentModeSequential) return;
-
-      const questionDivs = document.querySelectorAll('.question');
-      if (!questionDivs.length) return;
-
-      let totalCorrect = 0;
-
-      questionDivs.forEach(qDiv => {
-        const boxes = qDiv.querySelectorAll('input[type="checkbox"]');
-        const answers = qDiv.querySelectorAll('.answer');
-        const result = qDiv.querySelector('.question-result');
-
-        answers.forEach(a => a.classList.remove('answer-correct','answer-correct-missed','answer-wrong-selected'));
-
-        let hasAnySelection = false;
-        let isQuestionCorrect = true;
-
-        boxes.forEach(cb => {
-          const should = cb.dataset.correct === 'true';
-          const is = cb.checked;
-          if (is) hasAnySelection = true;
-          if (is !== should) isQuestionCorrect = false;
-        });
-
-        if (!hasAnySelection) isQuestionCorrect = false;
-
-        answers.forEach(a => {
-          const cb = a.querySelector('input[type="checkbox"]');
-          const should = cb.dataset.correct === 'true';
-          const is = cb.checked;
-
-          if (should && is) a.classList.add('answer-correct');
-          else if (should && !is) a.classList.add('answer-correct-missed');
-          else if (!should && is) a.classList.add('answer-wrong-selected');
-        });
-
-        if (isQuestionCorrect) {
-          totalCorrect++;
-          result.textContent = 'Správně ✔';
-          result.className = 'question-result correct';
-        } else {
-          result.textContent = 'Špatně ✘';
-          result.className = 'question-result incorrect';
-        }
-      });
-
-      resultSummary.textContent = `Výsledek: ${totalCorrect} / ${questionDivs.length} správně`;
-    });
-
-    // ===== Režim: po jedné otázce =====
-    function startSequentialMode() {
-      seqIndex = 0;
-      seqCorrect = 0;
-      currentQuestions.forEach(q => { delete q._counted; });
-
-      renderSequentialQuestion();
-      evaluateBtn.style.display = 'none';
-      resetBtn.style.display = 'inline-block';
-      resultSummary.textContent = '';
-    }
-
-    function renderSequentialQuestion() {
-      quizContainer.innerHTML = '';
-      resultSummary.textContent = '';
-
-      const total = currentQuestions.length;
-      if (!total) {
-        quizContainer.innerHTML = '<p>Nejsou žádné otázky.</p>';
-        return;
-      }
-
-      if (seqIndex >= total) {
-        quizContainer.innerHTML = `<p>Test dokončen! Výsledek: <strong>${seqCorrect} / ${total}</strong> správně.</p>`;
-        return;
-      }
-
-      const q = currentQuestions[seqIndex];
-
-      const wrapper = document.createElement('div');
-
-      const progress = document.createElement('div');
-      progress.className = 'hint';
-      progress.style.marginBottom = '6px';
-      progress.textContent = `Otázka ${seqIndex + 1} / ${total}`;
-      wrapper.appendChild(progress);
-
+    function createQuestionElement(question, number, showNumber) {
       const qDiv = document.createElement('div');
       qDiv.className = 'question';
 
       const title = document.createElement('div');
       title.className = 'question-title';
-      title.textContent = q.question;
+      title.textContent = showNumber ? `${number}. ${question.question}` : question.question;
       qDiv.appendChild(title);
 
-      q.answers.forEach(a => {
+      question.answers.forEach(answer => {
         const answerDiv = document.createElement('div');
         answerDiv.className = 'answer';
 
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.dataset.correct = a.correct;
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.dataset.correct = answer.correct;
 
         const span = document.createElement('span');
-        span.textContent = a.text;
+        span.textContent = answer.text;
 
-        answerDiv.appendChild(cb);
+        answerDiv.appendChild(checkbox);
         answerDiv.appendChild(span);
 
-        answerDiv.addEventListener('click', e => {
-          if (e.target !== cb) cb.checked = !cb.checked;
-          if (!allowMultipleAnswers && cb.checked) {
-            qDiv.querySelectorAll('input[type="checkbox"]').forEach(x => {
-              if (x !== cb) x.checked = false;
+        answerDiv.addEventListener('click', event => {
+          if (event.target !== checkbox) {
+            checkbox.checked = !checkbox.checked;
+          }
+
+          if (!allowMultipleAnswers && checkbox.checked) {
+            qDiv.querySelectorAll('input[type="checkbox"]').forEach(other => {
+              if (other !== checkbox) other.checked = false;
             });
           }
         });
@@ -575,11 +581,108 @@ C) Odpověď 3
         qDiv.appendChild(answerDiv);
       });
 
-      const resultDiv = document.createElement('div');
-      resultDiv.className = 'question-result';
-      qDiv.appendChild(resultDiv);
+      const result = document.createElement('div');
+      result.className = 'question-result';
+      qDiv.appendChild(result);
 
-      wrapper.appendChild(qDiv);
+      return qDiv;
+    }
+
+    evaluateBtn.addEventListener('click', () => {
+      if (currentModeSequential) return;
+
+      const questionDivs = document.querySelectorAll('.question');
+      let totalCorrect = 0;
+
+      questionDivs.forEach(qDiv => {
+        const isCorrect = evaluateQuestionDiv(qDiv);
+
+        if (isCorrect) totalCorrect++;
+      });
+
+      resultSummary.textContent = `Výsledek: ${totalCorrect} / ${questionDivs.length} správně`;
+    });
+
+    function evaluateQuestionDiv(qDiv) {
+      const boxes = qDiv.querySelectorAll('input[type="checkbox"]');
+      const answers = qDiv.querySelectorAll('.answer');
+      const result = qDiv.querySelector('.question-result');
+
+      answers.forEach(answer => {
+        answer.classList.remove('answer-correct', 'answer-correct-missed', 'answer-wrong-selected');
+      });
+
+      let hasAnySelection = false;
+      let isQuestionCorrect = true;
+
+      boxes.forEach(box => {
+        const shouldBeChecked = box.dataset.correct === 'true';
+        const isChecked = box.checked;
+
+        if (isChecked) hasAnySelection = true;
+        if (isChecked !== shouldBeChecked) isQuestionCorrect = false;
+      });
+
+      if (!hasAnySelection) isQuestionCorrect = false;
+
+      answers.forEach(answer => {
+        const box = answer.querySelector('input[type="checkbox"]');
+        const shouldBeChecked = box.dataset.correct === 'true';
+        const isChecked = box.checked;
+
+        if (shouldBeChecked && isChecked) {
+          answer.classList.add('answer-correct');
+        } else if (shouldBeChecked && !isChecked) {
+          answer.classList.add('answer-correct-missed');
+        } else if (!shouldBeChecked && isChecked) {
+          answer.classList.add('answer-wrong-selected');
+        }
+      });
+
+      if (isQuestionCorrect) {
+        result.textContent = 'Správně ✔';
+        result.className = 'question-result correct';
+      } else {
+        result.textContent = 'Špatně ✘';
+        result.className = 'question-result incorrect';
+      }
+
+      return isQuestionCorrect;
+    }
+
+    function startSequentialMode() {
+      seqIndex = 0;
+      seqCorrect = 0;
+      currentQuestions.forEach(q => delete q._counted);
+
+      evaluateBtn.style.display = 'none';
+      resetBtn.style.display = 'inline-block';
+      resultSummary.textContent = '';
+
+      renderSequentialQuestion();
+    }
+
+    function renderSequentialQuestion() {
+      quizContainer.innerHTML = '';
+      resultSummary.textContent = '';
+
+      const total = currentQuestions.length;
+
+      if (seqIndex >= total) {
+        quizContainer.innerHTML = `<p>Test dokončen! Výsledek: <strong>${seqCorrect} / ${total}</strong> správně.</p>`;
+        return;
+      }
+
+      const currentQuestion = currentQuestions[seqIndex];
+
+      const progress = document.createElement('div');
+      progress.className = 'hint';
+      progress.style.marginBottom = '6px';
+      progress.textContent = `Otázka ${seqIndex + 1} / ${total}`;
+      quizContainer.appendChild(progress);
+
+      const qDiv = createQuestionElement(currentQuestion, seqIndex + 1, false);
+      quizContainer.appendChild(qDiv);
 
       const buttonsDiv = document.createElement('div');
       buttonsDiv.style.marginTop = '10px';
@@ -593,84 +696,52 @@ C) Odpověď 3
       nextBtn.className = 'question-nav-btn btn-next';
 
       evalOneBtn.addEventListener('click', () => {
-        const boxes = qDiv.querySelectorAll('input[type="checkbox"]');
-        const answers = qDiv.querySelectorAll('.answer');
+        const isCorrect = evaluateQuestionDiv(qDiv);
 
-        answers.forEach(a => a.classList.remove('answer-correct','answer-correct-missed','answer-wrong-selected'));
-
-        let hasAnySelection = false;
-        let isQuestionCorrect = true;
-
-        boxes.forEach(cb => {
-          const should = cb.dataset.correct === 'true';
-          const is = cb.checked;
-          if (is) hasAnySelection = true;
-          if (is !== should) isQuestionCorrect = false;
-        });
-
-        if (!hasAnySelection) isQuestionCorrect = false;
-
-        answers.forEach(a => {
-          const cb = a.querySelector('input[type="checkbox"]');
-          const should = cb.dataset.correct === 'true';
-          const is = cb.checked;
-
-          if (should && is) a.classList.add('answer-correct');
-          else if (should && !is) a.classList.add('answer-correct-missed');
-          else if (!should && is) a.classList.add('answer-wrong-selected');
-        });
-
-        if (isQuestionCorrect) {
-          if (!q._counted) {
-            seqCorrect++;
-            q._counted = true;
-          }
-          resultDiv.textContent = 'Správně ✔';
-          resultDiv.className = 'question-result correct';
-        } else {
-          resultDiv.textContent = 'Špatně ✘';
-          resultDiv.className = 'question-result incorrect';
+        if (isCorrect && !currentQuestion._counted) {
+          seqCorrect++;
+          currentQuestion._counted = true;
         }
 
-        // po vyhodnocení se už neodpovídá, jen jde dál
         evalOneBtn.disabled = true;
-        nextBtn.textContent = (seqIndex === total - 1) ? 'Dokončit test' : 'Další otázka';
-        qDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.disabled = true);
+        nextBtn.textContent = seqIndex === total - 1 ? 'Dokončit test' : 'Další otázka';
+
+        qDiv.querySelectorAll('input[type="checkbox"]').forEach(box => {
+          box.disabled = true;
+        });
       });
 
       nextBtn.addEventListener('click', () => {
-        // pokud otázka nebyla vyhodnocena, bere se jako špatně (seqCorrect se jen nezvýší)
         seqIndex++;
         renderSequentialQuestion();
       });
 
       buttonsDiv.appendChild(evalOneBtn);
       buttonsDiv.appendChild(nextBtn);
-      wrapper.appendChild(buttonsDiv);
-
-      quizContainer.appendChild(wrapper);
+      quizContainer.appendChild(buttonsDiv);
     }
 
-    // RESET
     resetBtn.addEventListener('click', () => {
       if (currentModeSequential && currentQuestions.length) {
         seqIndex = 0;
         seqCorrect = 0;
-        currentQuestions.forEach(q => { delete q._counted; });
+        currentQuestions.forEach(q => delete q._counted);
         renderSequentialQuestion();
-        resultSummary.textContent = '';
       } else {
-        document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-          cb.checked = false;
-          cb.disabled = false;
+        document.querySelectorAll('input[type="checkbox"]').forEach(box => {
+          box.checked = false;
+          box.disabled = false;
         });
-        document.querySelectorAll('.answer').forEach(a =>
-          a.classList.remove('answer-correct','answer-correct-missed','answer-wrong-selected')
-        );
-        document.querySelectorAll('.question-result').forEach(r => {
-          r.textContent = '';
-          r.className = 'question-result';
+
+        document.querySelectorAll('.answer').forEach(answer => {
+          answer.classList.remove('answer-correct', 'answer-correct-missed', 'answer-wrong-selected');
         });
+
+        document.querySelectorAll('.question-result').forEach(result => {
+          result.textContent = '';
+          result.className = 'question-result';
+        });
+
         resultSummary.textContent = '';
       }
     });
